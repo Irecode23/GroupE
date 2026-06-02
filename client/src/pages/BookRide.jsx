@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import API from '../api/axios'
+import RideMap from '../components/RideMap'
 
 function BookRide() {
   const navigate = useNavigate()
@@ -55,7 +56,7 @@ function BookRide() {
 
       <div style={styles.content}>
         <div style={styles.leftPanel}>
-          {/* Form */}
+          {/* Form Card */}
           <div style={styles.card}>
             <h2 style={styles.title}>Book a Ride</h2>
             <p style={styles.subtitle}>Where are you going today?</p>
@@ -96,7 +97,9 @@ function BookRide() {
 
                 <div style={styles.successNote}>
                   <span>💡</span>
-                  <p>Go to your dashboard to see driver offers and accept a driver.</p>
+                  <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>
+                    Go to your dashboard to see driver offers and accept a driver.
+                  </p>
                 </div>
 
                 <div style={styles.successButtons}>
@@ -125,7 +128,7 @@ function BookRide() {
                     style={styles.input}
                     type="text"
                     name="pickupAddress"
-                    placeholder="Enter your pickup address"
+                    placeholder="e.g University of Lagos, Akoka"
                     value={formData.pickupAddress}
                     onChange={handleChange}
                     required
@@ -138,7 +141,7 @@ function BookRide() {
                     style={styles.input}
                     type="text"
                     name="dropoffAddress"
-                    placeholder="Enter your destination"
+                    placeholder="e.g Murtala Muhammed Airport, Lagos"
                     value={formData.dropoffAddress}
                     onChange={handleChange}
                     required
@@ -151,6 +154,16 @@ function BookRide() {
               </form>
             )}
           </div>
+
+          {/* Map Card — shows when either address is typed */}
+          {(formData.pickupAddress || formData.dropoffAddress) && !success && (
+            <div style={styles.mapCard}>
+              <RideMap
+                pickupAddress={formData.pickupAddress}
+                dropoffAddress={formData.dropoffAddress}
+              />
+            </div>
+          )}
         </div>
 
         <div style={styles.rightPanel}>
@@ -179,6 +192,7 @@ function BookRide() {
             <div style={styles.infoSteps}>
               {[
                 { icon: '📝', text: 'Enter your pickup and dropoff location' },
+                { icon: '🗺️', text: 'Map shows your route and estimated time' },
                 { icon: '🚘', text: 'Drivers will request your ride' },
                 { icon: '✅', text: 'You choose which driver to accept' },
                 { icon: '🏁', text: 'Driver picks you up and completes the ride' },
@@ -216,11 +230,22 @@ const styles = {
     display: 'flex', gap: '24px', padding: '32px 40px',
     maxWidth: '1100px', margin: '0 auto', flexWrap: 'wrap'
   },
-  leftPanel: { flex: 1, minWidth: '320px' },
-  rightPanel: { flex: 1, minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '20px' },
+  leftPanel: {
+    flex: 1, minWidth: '320px',
+    display: 'flex', flexDirection: 'column', gap: '20px'
+  },
+  rightPanel: {
+    flex: 1, minWidth: '300px',
+    display: 'flex', flexDirection: 'column', gap: '20px'
+  },
   card: {
     background: '#fff', padding: '32px', borderRadius: '20px',
-    boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.04)'
+    boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+    border: '1px solid rgba(0,0,0,0.04)'
+  },
+  mapCard: {
+    borderRadius: '20px', overflow: 'hidden',
+    boxShadow: '0 4px 24px rgba(0,0,0,0.08)'
   },
   title: { fontSize: '26px', fontWeight: '800', color: '#1a1a2e', margin: '0 0 8px' },
   subtitle: { color: '#666', margin: '0 0 28px', fontSize: '15px' },
@@ -230,7 +255,10 @@ const styles = {
     marginBottom: '20px', fontSize: '14px'
   },
   inputGroup: { marginBottom: '20px' },
-  label: { display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '700', color: '#333' },
+  label: {
+    display: 'block', marginBottom: '8px',
+    fontSize: '13px', fontWeight: '700', color: '#333'
+  },
   input: {
     width: '100%', padding: '14px 16px', borderRadius: '10px',
     border: '2px solid #eee', fontSize: '15px',
@@ -245,7 +273,8 @@ const styles = {
   },
   successBox: { textAlign: 'center' },
   successIconBox: {
-    width: '80px', height: '80px', background: 'linear-gradient(135deg, #e0ffe0, #c0f0c0)',
+    width: '80px', height: '80px',
+    background: 'linear-gradient(135deg, #e0ffe0, #c0f0c0)',
     borderRadius: '50%', display: 'flex', alignItems: 'center',
     justifyContent: 'center', margin: '0 auto 20px', fontSize: '36px'
   },

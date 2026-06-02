@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import API from '../api/axios'
+import useWindowSize from '../hooks/useWindowSize'
 
 function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' })
@@ -9,6 +10,8 @@ function Login() {
   const [loading, setLoading] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
+  const { width } = useWindowSize()
+  const isMobile = width < 768
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -20,14 +23,11 @@ function Login() {
     setError('')
     try {
       const { data } = await API.post('/auth/login', formData)
-
-      // Block admin from using regular login page
       if (data.role === 'admin') {
-        setError('Invalid Credentials Message Support.')
+        setError('Admin accounts must login through the Admin Login page.')
         setLoading(false)
         return
       }
-
       login(data)
       if (data.role === 'rider') navigate('/rider/dashboard')
       else if (data.role === 'driver') navigate('/driver/dashboard')
@@ -38,84 +38,95 @@ function Login() {
   }
 
   return (
-    <div style={styles.container}>
-      {/* Left Side */}
-      <div style={styles.leftPanel}>
-        <div style={styles.leftContent}>
-          <h1 style={styles.leftLogo}>🚗 RideShare</h1>
-          <h2 style={styles.leftTitle}>Welcome Back!</h2>
-          <p style={styles.leftSubtitle}>
-            Login to access your dashboard and manage your rides.
-          </p>
-          <div style={styles.features}>
-            {[
-              { icon: '⚡', text: 'Fast and reliable rides' },
-              { icon: '🔒', text: 'Safe and secure platform' },
-              { icon: '💰', text: 'Affordable prices' },
-              { icon: '⭐', text: 'Top rated drivers' },
-            ].map((f) => (
-              <div key={f.text} style={styles.featureItem}>
-                <span style={styles.featureIcon}>{f.icon}</span>
-                <span style={styles.featureText}>{f.text}</span>
-              </div>
-            ))}
+    <div style={{ ...styles.container, flexDirection: isMobile ? 'column' : 'row' }}>
+      {/* Left Side - hide on mobile */}
+      {!isMobile && (
+        <div style={styles.leftPanel}>
+          <div style={styles.leftContent}>
+            <h1 style={styles.leftLogo}>🚗 RideShare</h1>
+            <h2 style={styles.leftTitle}>Welcome Back!</h2>
+            <p style={styles.leftSubtitle}>
+              Login to access your dashboard and manage your rides.
+            </p>
+            <div style={styles.features}>
+              {[
+                { icon: '⚡', text: 'Fast and reliable rides' },
+                { icon: '🔒', text: 'Safe and secure platform' },
+                { icon: '💰', text: 'Affordable prices' },
+                { icon: '⭐', text: 'Top rated drivers' },
+              ].map((f) => (
+                <div key={f.text} style={styles.featureItem}>
+                  <span style={styles.featureIcon}>{f.icon}</span>
+                  <span style={styles.featureText}>{f.text}</span>
+                </div>
+              ))}
+            </div>
+            <svg viewBox="0 0 300 150" style={styles.svg} xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="120" width="300" height="30" fill="#2d2d4e" rx="4"/>
+              <rect x="30" y="128" width="30" height="5" fill="#f6c90e" rx="2"/>
+              <rect x="100" y="128" width="30" height="5" fill="#f6c90e" rx="2"/>
+              <rect x="170" y="128" width="30" height="5" fill="#f6c90e" rx="2"/>
+              <rect x="240" y="128" width="30" height="5" fill="#f6c90e" rx="2"/>
+              <rect x="60" y="85" width="140" height="40" fill="#f6c90e" rx="8"/>
+              <rect x="80" y="65" width="100" height="30" fill="#f6c90e" rx="8"/>
+              <rect x="88" y="70" width="38" height="22" fill="#1a1a2e" rx="3" opacity="0.8"/>
+              <rect x="132" y="70" width="38" height="22" fill="#1a1a2e" rx="3" opacity="0.8"/>
+              <circle cx="90" cy="125" r="14" fill="#1a1a2e"/>
+              <circle cx="90" cy="125" r="7" fill="#444"/>
+              <circle cx="90" cy="125" r="3" fill="#f6c90e"/>
+              <circle cx="170" cy="125" r="14" fill="#1a1a2e"/>
+              <circle cx="170" cy="125" r="7" fill="#444"/>
+              <circle cx="170" cy="125" r="3" fill="#f6c90e"/>
+              <rect x="55" y="95" width="8" height="6" fill="#e74c3c" rx="1"/>
+              <rect x="197" y="95" width="8" height="6" fill="#fff" rx="1"/>
+              <circle cx="25" cy="75" r="10" fill="#f39c12"/>
+              <rect x="18" y="85" width="14" height="20" fill="#e74c3c" rx="3"/>
+              <rect x="18" y="102" width="5" height="16" fill="#1a1a2e" rx="2"/>
+              <rect x="27" y="102" width="5" height="16" fill="#1a1a2e" rx="2"/>
+              <line x1="18" y1="90" x2="8" y2="82" stroke="#f39c12" strokeWidth="3" strokeLinecap="round"/>
+              <line x1="32" y1="90" x2="42" y2="98" stroke="#f39c12" strokeWidth="3" strokeLinecap="round"/>
+              <circle cx="25" cy="45" r="8" fill="#e74c3c"/>
+              <circle cx="25" cy="45" r="4" fill="#fff"/>
+              <line x1="25" y1="53" x2="25" y2="62" stroke="#e74c3c" strokeWidth="2"/>
+              <rect x="38" y="35" width="70" height="24" fill="#fff" rx="6" opacity="0.95"/>
+              <polygon points="38,52 32,58 45,52" fill="#fff" opacity="0.95"/>
+              <text x="45" y="46" fontSize="7" fill="#1a1a2e" fontWeight="bold">Waiting for</text>
+              <text x="45" y="55" fontSize="7" fill="#1a1a2e" fontWeight="bold">driver... 🚕</text>
+              <text x="100" y="55" fontSize="12" fill="#f6c90e">⭐⭐⭐⭐⭐</text>
+              <path d="M 210 80 Q 222 72 234 80" stroke="#2ecc71" strokeWidth="2" fill="none"/>
+              <path d="M 214 72 Q 230 60 246 72" stroke="#2ecc71" strokeWidth="1.5" fill="none" opacity="0.7"/>
+              <rect x="265" y="88" width="6" height="32" fill="#795548"/>
+              <circle cx="268" cy="82" r="14" fill="#2ecc71"/>
+              <circle cx="260" cy="88" r="10" fill="#27ae60"/>
+            </svg>
           </div>
-
-          {/* SVG illustration */}
-          <svg viewBox="0 0 300 150" style={styles.svg} xmlns="http://www.w3.org/2000/svg">
-            <rect x="0" y="120" width="300" height="30" fill="#2d2d4e" rx="4"/>
-            <rect x="30" y="128" width="30" height="5" fill="#f6c90e" rx="2"/>
-            <rect x="100" y="128" width="30" height="5" fill="#f6c90e" rx="2"/>
-            <rect x="170" y="128" width="30" height="5" fill="#f6c90e" rx="2"/>
-            <rect x="240" y="128" width="30" height="5" fill="#f6c90e" rx="2"/>
-            <rect x="60" y="85" width="140" height="40" fill="#f6c90e" rx="8"/>
-            <rect x="80" y="65" width="100" height="30" fill="#f6c90e" rx="8"/>
-            <rect x="88" y="70" width="38" height="22" fill="#1a1a2e" rx="3" opacity="0.8"/>
-            <rect x="132" y="70" width="38" height="22" fill="#1a1a2e" rx="3" opacity="0.8"/>
-            <circle cx="90" cy="125" r="14" fill="#1a1a2e"/>
-            <circle cx="90" cy="125" r="7" fill="#444"/>
-            <circle cx="90" cy="125" r="3" fill="#f6c90e"/>
-            <circle cx="170" cy="125" r="14" fill="#1a1a2e"/>
-            <circle cx="170" cy="125" r="7" fill="#444"/>
-            <circle cx="170" cy="125" r="3" fill="#f6c90e"/>
-            <rect x="55" y="95" width="8" height="6" fill="#e74c3c" rx="1"/>
-            <rect x="197" y="95" width="8" height="6" fill="#fff" rx="1"/>
-            <circle cx="25" cy="75" r="10" fill="#f39c12"/>
-            <rect x="18" y="85" width="14" height="20" fill="#e74c3c" rx="3"/>
-            <rect x="18" y="102" width="5" height="16" fill="#1a1a2e" rx="2"/>
-            <rect x="27" y="102" width="5" height="16" fill="#1a1a2e" rx="2"/>
-            <line x1="18" y1="90" x2="8" y2="82" stroke="#f39c12" strokeWidth="3" strokeLinecap="round"/>
-            <line x1="32" y1="90" x2="42" y2="98" stroke="#f39c12" strokeWidth="3" strokeLinecap="round"/>
-            <circle cx="25" cy="45" r="8" fill="#e74c3c"/>
-            <circle cx="25" cy="45" r="4" fill="#fff"/>
-            <line x1="25" y1="53" x2="25" y2="62" stroke="#e74c3c" strokeWidth="2"/>
-            <rect x="38" y="35" width="70" height="24" fill="#fff" rx="6" opacity="0.95"/>
-            <polygon points="38,52 32,58 45,52" fill="#fff" opacity="0.95"/>
-            <text x="45" y="46" fontSize="7" fill="#1a1a2e" fontWeight="bold">Waiting for</text>
-            <text x="45" y="55" fontSize="7" fill="#1a1a2e" fontWeight="bold">driver... 🚕</text>
-            <text x="100" y="55" fontSize="12" fill="#f6c90e">⭐⭐⭐⭐⭐</text>
-            <path d="M 210 80 Q 222 72 234 80" stroke="#2ecc71" strokeWidth="2" fill="none"/>
-            <path d="M 214 72 Q 230 60 246 72" stroke="#2ecc71" strokeWidth="1.5" fill="none" opacity="0.7"/>
-            <rect x="265" y="88" width="6" height="32" fill="#795548"/>
-            <circle cx="268" cy="82" r="14" fill="#2ecc71"/>
-            <circle cx="260" cy="88" r="10" fill="#27ae60"/>
-          </svg>
         </div>
-      </div>
+      )}
 
       {/* Right Side - Form */}
-      <div style={styles.rightPanel}>
-        <div style={styles.formBox}>
+      <div style={{
+        ...styles.rightPanel,
+        padding: isMobile ? '32px 20px' : '60px 40px',
+        background: isMobile ? '#1a1a2e' : '#f8f9fa'
+      }}>
+        {/* Show logo on mobile */}
+        {isMobile && (
+          <div style={styles.mobileLogo}>
+            <h1 style={styles.mobileLogoText}>🚗 RideShare</h1>
+          </div>
+        )}
+
+        <div style={{
+          ...styles.formBox,
+          padding: isMobile ? '28px 24px' : '48px',
+          boxShadow: isMobile ? '0 8px 32px rgba(0,0,0,0.3)' : '0 8px 40px rgba(0,0,0,0.1)'
+        }}>
           <div style={styles.formHeader}>
             <h2 style={styles.formTitle}>Sign In</h2>
             <p style={styles.formSubtitle}>Enter your credentials to continue</p>
           </div>
 
-          {error && (
-            <div style={styles.error}>
-              ❌ {error}
-            </div>
-          )}
+          {error && <div style={styles.error}>❌ {error}</div>}
 
           <form onSubmit={handleSubmit}>
             <div style={styles.inputGroup}>
@@ -159,6 +170,10 @@ function Login() {
             Don't have an account?{' '}
             <Link to="/register" style={styles.link}>Create Account</Link>
           </p>
+          <p style={styles.footer}>
+            Are you an admin?{' '}
+            <Link to="/admin/login" style={styles.link}>Admin Login</Link>
+          </p>
         </div>
       </div>
     </div>
@@ -186,14 +201,16 @@ const styles = {
   featureText: { color: '#ccc', fontSize: '14px', fontWeight: '500' },
   svg: { width: '100%', maxWidth: '320px', marginTop: '8px' },
   rightPanel: {
-    flex: 1, display: 'flex', alignItems: 'center',
-    justifyContent: 'center', padding: '60px 40px', background: '#f8f9fa'
+    flex: 1, display: 'flex', flexDirection: 'column',
+    alignItems: 'center', justifyContent: 'center'
   },
+  mobileLogo: { marginBottom: '24px', textAlign: 'center' },
+  mobileLogoText: { color: '#f6c90e', fontSize: '28px', fontWeight: '800', margin: 0 },
   formBox: {
-    background: '#fff', padding: '48px', borderRadius: '20px',
-    boxShadow: '0 8px 40px rgba(0,0,0,0.1)', width: '100%', maxWidth: '420px'
+    background: '#fff', borderRadius: '20px',
+    width: '100%', maxWidth: '420px'
   },
-  formHeader: { marginBottom: '32px' },
+  formHeader: { marginBottom: '28px' },
   formTitle: { fontSize: '28px', fontWeight: '800', color: '#1a1a2e', margin: '0 0 8px' },
   formSubtitle: { color: '#666', margin: 0, fontSize: '15px' },
   error: {
@@ -207,8 +224,7 @@ const styles = {
   input: {
     width: '100%', padding: '14px 16px', borderRadius: '10px',
     border: '2px solid #eee', fontSize: '15px',
-    boxSizing: 'border-box', outline: 'none',
-    transition: 'border-color 0.2s', background: '#fafafa'
+    boxSizing: 'border-box', outline: 'none', background: '#fafafa'
   },
   button: {
     width: '100%', padding: '14px',
