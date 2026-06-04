@@ -9,6 +9,7 @@ import MyRides from './pages/MyRides'
 import Profile from './pages/Profile'
 import RateDriver from './pages/RateDriver'
 import SubmitComplaint from './pages/SubmitComplaint'
+import RideReceipt from './pages/RideReceipt'
 import NotFound from './pages/NotFound'
 import AdminLogin from './pages/admin/AdminLogin'
 import AdminRegister from './pages/admin/AdminRegister'
@@ -37,6 +38,7 @@ function App() {
       <Route path="/profile" element={<Profile />} />
       <Route path="/rate-driver/:rideId/:driverId" element={<RateDriver />} />
       <Route path="/complaints" element={<SubmitComplaint />} />
+      <Route path="/receipt/:rideId" element={<RideReceipt />} />
 
       {/* Admin Routes */}
       <Route path="/admin/login" element={<AdminLogin />} />

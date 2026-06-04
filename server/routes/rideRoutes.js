@@ -7,6 +7,7 @@ const {
   acceptDriver,
   updateRideStatus,
   confirmRide,
+  cancelRide,
   getMyRides,
   getAllRides
 } = require('../controllers/rideController');
@@ -19,6 +20,7 @@ router.put('/request/:id', protect, requestRide);
 router.put('/accept-driver/:id', protect, acceptDriver);
 router.put('/status/:id', protect, updateRideStatus);
 router.put('/confirm/:id', protect, confirmRide);
+router.put('/cancel/:id', protect, cancelRide);
 router.get('/all', protect, adminOnly, getAllRides);
 
 module.exports = router;

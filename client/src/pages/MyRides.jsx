@@ -40,7 +40,7 @@ function MyRides() {
   const handleUpdateStatus = async (rideId, status) => {
     try {
       await API.put(`/rides/status/${rideId}`, { status })
-      setMessage(`Ride status updated!`)
+      setMessage('Ride status updated!')
       fetchRides()
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to update ride')
@@ -57,14 +57,22 @@ function MyRides() {
     }
   }
 
+  const handleCancelRide = async (rideId) => {
+    if (!window.confirm('Are you sure you want to cancel this ride?')) return
+    try {
+      await API.put(`/rides/cancel/${rideId}`)
+      setMessage('Ride cancelled successfully')
+      fetchRides()
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to cancel ride')
+    }
+  }
+
   const getStatusColor = (status) => {
     const colors = {
-      pending: '#f6c90e',
-      accepted: '#3498db',
-      ongoing: '#9b59b6',
-      driver_completed: '#e67e22',
-      completed: '#2ecc71',
-      cancelled: '#e74c3c'
+      pending: '#f6c90e', accepted: '#3498db',
+      ongoing: '#9b59b6', driver_completed: '#e67e22',
+      completed: '#2ecc71', cancelled: '#e74c3c'
     }
     return colors[status] || '#999'
   }
@@ -197,6 +205,7 @@ function MyRides() {
 
         {loading ? (
           <div style={styles.loadingBox}>
+            <div style={styles.spinner} />
             <p style={styles.loadingText}>Loading your rides...</p>
           </div>
         ) : filteredRides.length === 0 ? (
@@ -213,7 +222,6 @@ function MyRides() {
           <div style={styles.ridesList}>
             {filteredRides.map((ride) => (
               <div key={ride._id} style={styles.rideCard}>
-
                 {/* Card Header */}
                 <div style={styles.cardHeader}>
                   <div style={styles.cardHeaderLeft}>
@@ -254,7 +262,7 @@ function MyRides() {
                   </div>
                 </div>
 
-                {/* Driver Requests — Rider picks a driver */}
+                {/* Driver Requests */}
                 {user?.role === 'rider' &&
                   ride.status === 'pending' &&
                   ride.driverRequests?.length > 0 && (
@@ -351,6 +359,16 @@ function MyRides() {
                   </button>
                 )}
 
+                {/* Cancel Ride */}
+                {user?.role === 'rider' && ['pending', 'accepted'].includes(ride.status) && (
+                  <button
+                    style={styles.cancelBtn}
+                    onClick={() => handleCancelRide(ride._id)}
+                  >
+                    ❌ Cancel Ride
+                  </button>
+                )}
+
                 {/* Rider Confirm */}
                 {user?.role === 'rider' && ride.status === 'driver_completed' && (
                   <div style={styles.confirmBox}>
@@ -378,6 +396,16 @@ function MyRides() {
 
                 {ride.status === 'completed' && ride.isRated && (
                   <div style={styles.ratedBadge}>✅ Rated</div>
+                )}
+
+                {/* Receipt Button */}
+                {ride.status === 'completed' && (
+                  <Link
+                    to={`/receipt/${ride._id}`}
+                    style={styles.receiptBtn}
+                  >
+                    🧾 View Receipt
+                  </Link>
                 )}
               </div>
             ))}
@@ -448,6 +476,11 @@ const styles = {
     fontWeight: '600', cursor: 'pointer', boxShadow: '0 4px 12px rgba(26,26,46,0.3)'
   },
   loadingBox: { textAlign: 'center', padding: '60px' },
+  spinner: {
+    width: '40px', height: '40px', border: '4px solid #f0f0f0',
+    borderTop: '4px solid #f6c90e', borderRadius: '50%',
+    margin: '0 auto 16px', animation: 'spin 1s linear infinite'
+  },
   loadingText: { color: '#666', fontSize: '16px' },
   empty: { textAlign: 'center', padding: '60px' },
   emptyIcon: { fontSize: '64px', margin: '0 0 16px' },
@@ -497,12 +530,10 @@ const styles = {
     background: '#fffbf0', border: '2px solid #f6c90e',
     borderRadius: '12px', padding: '16px', marginBottom: '16px'
   },
-  requestsTitle: {
-    fontSize: '14px', fontWeight: '700', color: '#1a1a2e', margin: '0 0 12px'
-  },
+  requestsTitle: { fontSize: '14px', fontWeight: '700', color: '#1a1a2e', margin: '0 0 12px' },
   driverRequestCard: {
     display: 'flex', alignItems: 'center', gap: '12px',
-    padding: '12px', background: '#fff', borderRadius: '10px',
+    padding: '10px', background: '#fff', borderRadius: '10px',
     marginBottom: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
   },
   driverAvatar: {
@@ -560,16 +591,29 @@ const styles = {
     fontSize: '14px', fontWeight: '800', cursor: 'pointer',
     boxShadow: '0 4px 12px rgba(246,201,14,0.4)'
   },
+  cancelBtn: {
+    width: '100%', padding: '10px',
+    background: 'rgba(231,76,60,0.1)', color: '#e74c3c',
+    border: '1px solid rgba(231,76,60,0.3)', borderRadius: '10px',
+    fontSize: '13px', fontWeight: '600', cursor: 'pointer', marginBottom: '8px'
+  },
   actionBtn: {
     width: '100%', padding: '13px',
     background: 'linear-gradient(135deg, #3498db, #2980b9)',
     color: '#fff', border: 'none', borderRadius: '10px',
     fontSize: '14px', fontWeight: '700', cursor: 'pointer',
-    boxShadow: '0 4px 12px rgba(52,152,219,0.3)'
+    boxShadow: '0 4px 12px rgba(52,152,219,0.3)', marginBottom: '8px'
   },
   ratedBadge: {
     textAlign: 'center', padding: '10px', background: '#e0ffe0',
-    borderRadius: '10px', fontSize: '13px', color: '#060', fontWeight: '700'
+    borderRadius: '10px', fontSize: '13px', color: '#060',
+    fontWeight: '700', marginBottom: '8px'
+  },
+  receiptBtn: {
+    display: 'block', textAlign: 'center', padding: '10px',
+    background: '#f9f9f9', color: '#666', borderRadius: '10px',
+    textDecoration: 'none', fontSize: '13px', fontWeight: '600',
+    marginTop: '8px', border: '1px solid #eee'
   }
 }
 

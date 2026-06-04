@@ -14,18 +14,26 @@ API.interceptors.request.use((config) => {
 
 API.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
+  async (error) => {
+    const originalRequest = error.config
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true
+
+      // Wait 2 seconds for Render to wake up then retry
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
       const user = JSON.parse(localStorage.getItem('user'))
-      if (user) {
-        localStorage.removeItem('user')
-        if (user.role === 'admin') {
-          window.location.href = '/admin/login'
-        } else {
-          window.location.href = '/login'
-        }
+      if (user?.token) {
+        originalRequest.headers.Authorization = `Bearer ${user.token}`
+        return API(originalRequest)
       }
+
+      localStorage.removeItem('user')
+      const isAdmin = window.location.pathname.includes('admin')
+      window.location.href = isAdmin ? '/admin/login' : '/login'
     }
+
     return Promise.reject(error)
   }
 )
