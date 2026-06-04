@@ -261,7 +261,6 @@ function Home() {
           <div style={styles.footerLinks}>
             <Link to="/login" style={styles.footerLink}>Login</Link>
             <Link to="/register" style={styles.footerLink}>Register</Link>
-            <Link to="/admin/login" style={styles.footerLink}>Admin</Link>
           </div>
         </div>
         <p style={styles.footerBottom}>© 2026 RideShare. All rights reserved.</p>

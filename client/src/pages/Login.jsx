@@ -24,7 +24,7 @@ function Login() {
     try {
       const { data } = await API.post('/auth/login', formData)
       if (data.role === 'admin') {
-        setError('Admin accounts must login through the Admin Login page.')
+        setError('Login failed.')
         setLoading(false)
         return
       }
@@ -123,7 +123,7 @@ function Login() {
         }}>
           <div style={styles.formHeader}>
             <h2 style={styles.formTitle}>Sign In</h2>
-            <p style={styles.formSubtitle}>Enter your credentials to continue</p>
+            <p style={styles.formSubtitle}>Sign in to access your dashboard</p>
           </div>
 
           {error && <div style={styles.error}>❌ {error}</div>}
@@ -170,13 +170,10 @@ function Login() {
             Don't have an account?{' '}
             <Link to="/register" style={styles.link}>Create Account</Link>
           </p>
-          <p style={styles.footer}>
-            Are you an admin?{' '}
-            <Link to="/admin/login" style={styles.link}>Admin Login</Link>
-          </p>
         </div>
       </div>
     </div>
+    
   )
 }
 
@@ -240,5 +237,6 @@ const styles = {
   footer: { textAlign: 'center', fontSize: '14px', color: '#666', margin: '8px 0' },
   link: { color: '#f39c12', fontWeight: '700', textDecoration: 'none' }
 }
+
 
 export default Login
